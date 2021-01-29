@@ -94,7 +94,6 @@ class DirHelper {
 			LeDiretorios(d.FullName);
 		});
 		
-		//var files = new DirectoryInfo(dirPath).GetFiles().Where(f => f.Extension == ".cs").AsParallel();
 		var files = new DirectoryInfo(dirPath).GetFiles().Where(f => _extensoes.Any(ex => ex.Equals(f.Extension))).AsParallel();
 		
 		Parallel.ForEach(files, f => {
@@ -127,12 +126,15 @@ class DirHelper {
 		});
 	}
 	
-	public string ObterResultado(string formato = FORMATO_SAIDA_PADRAO) {
+	public string ObterResultado(string formato = FORMATO_SAIDA_PADRAO, string caminhoArquivoSaida = null) {
 		var retorno = string.Empty;
 		foreach (var key in _resultado.Keys) {
 			var arquivo_chave = key.Split("->");
 			retorno += string.Format(formato + "\n", arquivo_chave[0], arquivo_chave[1], _resultado[key]);
 		}
+		
+		if (!string.IsNullOrEmpty(caminhoArquivoSaida))
+			File.WriteAllText(caminhoArquivoSaida, retorno);
 			
 		return retorno;
 	}
