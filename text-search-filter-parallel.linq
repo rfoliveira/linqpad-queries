@@ -94,7 +94,8 @@ class DirHelper {
 			LeDiretorios(d.FullName);
 		});
 		
-		var files = new DirectoryInfo(dirPath).GetFiles().Where(f => f.Extension == ".cs").AsParallel();
+		//var files = new DirectoryInfo(dirPath).GetFiles().Where(f => f.Extension == ".cs").AsParallel();
+		var files = new DirectoryInfo(dirPath).GetFiles().Where(f => _extensoes.Any(ex => ex.Equals(f.Extension))).AsParallel();
 		
 		Parallel.ForEach(files, f => {
 			LeArquivo(f.FullName);
