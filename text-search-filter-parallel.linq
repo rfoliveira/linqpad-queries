@@ -1,74 +1,17 @@
 <Query Kind="Program">
+  <Output>DataGrids</Output>
+  <Reference Relative="..\..\Downloads\dlls\Json130r1\Bin\netstandard2.0\Newtonsoft.Json.dll">C:\Users\rfoliveira\Downloads\dlls\Json130r1\Bin\netstandard2.0\Newtonsoft.Json.dll</Reference>
   <Namespace>System.Collections.Concurrent</Namespace>
+  <Namespace>System.ComponentModel</Namespace>
+  <Namespace>System.Text.Json</Namespace>
   <Namespace>System.Threading.Tasks</Namespace>
 </Query>
 
 void Main()
 {
-	//var dir = @"C:\cursos\microsoft\webapi-with-litedb\WebAPIWithLiteDB";
-	//var dir = @"C:\cursos\microsoft";
-	//var busca = new[] {"Swagger", "Weather", "use", "microSOFT"};
-	//var resultado = new ConcurrentDictionary<string, int>(StringComparer.InvariantCultureIgnoreCase);
-	
-	//var linhas = File.ReadAllLines(@"C:\cursos\microsoft\webapi-with-litedb\WebAPIWithLiteDB\Program.cs");
-	//var resultado = new ConcurrentDictionary<string>();
-	/*
-	Parallel.ForEach(
-		new DirectoryInfo(dir)
-		.GetFiles()
-		//.AsParallel()
-		.Where(f => f.Extension.Equals(".cs")),
-		(arq) => {
-			var linhas = File.ReadAllLines(arq.FullName);			
-			
-			// A cada linha...
-			//linhas.Dump($"Linhas - {arq.FullName}");
-			
-			Parallel.ForEach(linhas, l => {
-				if (!string.IsNullOrEmpty(l))
-				{			
-					var palavras = l.Trim().Split(' ');	
-					
-					Parallel.ForEach(palavras, p => {
-						
-						// A cada palavra da linha...
-						Parallel.ForEach(
-							busca, 
-							b => {
-								var qtd = Array.FindAll(busca, b => b.Contains(p, StringComparison.InvariantCultureIgnoreCase))
-									.Count();
-							//
-							//	qtd.Dump($"b = {b}, p = {p}, qtd = {qtd}");
-								
-								//$"b = {b}, p = {p}".Dump();
-								// A cada item da busca...
-								//if (qtd > 0) {
-								if (p.Contains(b, StringComparison.InvariantCultureIgnoreCase)) {
-									$"b = {b}, p = {p}".Dump("Added");
-									resultado.AddOrUpdate(arq.FullName + "->" + b, qtd, (k, v) => v++);
-								}
-							}
-						);
-						
-						//if (Array.FindIndex(busca, x => p.Contains(x)) > 0) {
-						//	resultado.AddOrUpdate(
-						//		arq.FullName, 
-						//		qtdPalavrasLinha, 
-						//		(key, oldVal) => Interlocked.Increment(ref qtdPalavrasLinha)
-						//	);
-						//}
-					});
-				}
-			});
-		}
-	);
-	
-	resultado.Keys.Dump("Resultado");
-	*/
-	
-	var dir = @"C:\cursos\microsoft";
-	var busca = new[] {"Swagger", "Weather", "use", "microSOFT"};
-	var helper = new DirHelper(busca, new [] { ".cs", ".config" });
+	var dir = @"C:\git";
+	var busca = new[] {"dinheiro"};
+	var helper = new DirHelper(busca, new [] { ".json" }, new[] { "\\eu\\" });
 	
 	helper.LeDiretorios(dir).ObterResultado().Dump();
 }
@@ -78,6 +21,7 @@ class DirHelper {
 	
 	private string[] _pesquisa;
 	private string[] _extensoes;
+	private string[] _diretoriosADesconsiderar;
 	private ConcurrentDictionary<string, int> _resultado;
 	private const string FORMATO_SAIDA_PADRAO = "Arquivo: {0}, palavra: {1}, qtd: {2}";
 
@@ -87,7 +31,14 @@ class DirHelper {
 		_resultado = new ConcurrentDictionary<string, int>(StringComparer.InvariantCultureIgnoreCase);
 	}
 	
+	public DirHelper(string[] pesquisa, string[] extensoes, string[] diretoriosADesconsiderar): this(pesquisa, extensoes) {
+		_diretoriosADesconsiderar = diretoriosADesconsiderar;
+	}
+	
 	public DirHelper LeDiretorios(string dirPath) {
+		if (Array.Exists(_diretoriosADesconsiderar, d => dirPath.Contains(d, StringComparison.InvariantCultureIgnoreCase))) 
+			return null;
+
 		var dirs = new DirectoryInfo(dirPath).GetDirectories().AsParallel();
 		
 		Parallel.ForEach(dirs, d => {
