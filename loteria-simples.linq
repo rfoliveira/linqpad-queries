@@ -1,40 +1,75 @@
-<Query Kind="Program">
-  <Output>DataGrids</Output>
-  <Reference Relative="..\..\Downloads\dlls\automapper.10.1.1\lib\netstandard2.0\AutoMapper.dll">C:\Users\rfoliveira\Downloads\dlls\automapper.10.1.1\lib\netstandard2.0\AutoMapper.dll</Reference>
-  <Reference Relative="..\..\Downloads\documentformat.openxml.2.5.0\lib\DocumentFormat.OpenXml.dll">C:\Users\rfoliveira\Downloads\documentformat.openxml.2.5.0\lib\DocumentFormat.OpenXml.dll</Reference>
-  <Reference>C:\git\ativa-portal\DLLs\EPPlus.dll</Reference>
-  <Reference Relative="..\..\Downloads\dlls\Json130r1\Bin\netstandard2.0\Newtonsoft.Json.dll">C:\Users\rfoliveira\Downloads\dlls\Json130r1\Bin\netstandard2.0\Newtonsoft.Json.dll</Reference>
-  <Namespace>DocumentFormat.OpenXml</Namespace>
-  <Namespace>DocumentFormat.OpenXml.Packaging</Namespace>
-  <Namespace>DocumentFormat.OpenXml.Spreadsheet</Namespace>
-  <Namespace>Newtonsoft.Json</Namespace>
-  <Namespace>OfficeOpenXml</Namespace>
-  <Namespace>System.Collections.Concurrent</Namespace>
-  <Namespace>System.ComponentModel</Namespace>
-  <Namespace>System.IO.Packaging</Namespace>
-  <Namespace>System.Net.Http</Namespace>
-  <Namespace>System.Net.Mail</Namespace>
-  <Namespace>System.Text.Json</Namespace>
-  <Namespace>System.Threading.Tasks</Namespace>
-  <Namespace>System.Web</Namespace>
-</Query>
+<Query Kind="Program" />
 
 void Main()
 {
-	var rnd = new Random();
-	var nros = new List<int>();
-	var qtdNumeros = 6;
+	//var rnd = new Random();
+	//var nros = new List<int>();
+	//var qtdNumeros = 6;
+	//var nroMaximo = 60;
+	//
+	//while (nros.Count != qtdNumeros) {
+	//	var n = rnd.Next(nroMaximo);
+	//	
+	//	if (nros.Any(x => x == n || x == 0))
+	//		continue;
+	//		
+	//	nros.Add(n);
+	//}
+	//
+	//string.Join("-", nros.OrderBy(x => x).ToArray()).Dump();
 	
-	while (nros.Count != qtdNumeros) {
-		var n = rnd.Next(60);
-		
-		if (nros.Any(x => x == n))
-			continue;
-			
-		nros.Add(n);
-	}
+	var minhaAposta = Aposta.Instancia().Gerar(6, 60);
+	minhaAposta.ToString().Dump();
 	
-	nros.OrderBy(x => x).Dump();
+	var outraAposta = Aposta.Instancia().Gerar(6, 60);
+	outraAposta.ToString().Dump();
 }
 
 // You can define other methods, fields, classes and namespaces here
+class Bolao {
+	public int Id { get; set; }
+	public string Nome { get; set; }
+	public List<Pessoa> Pessoas { get; set; }
+	public List<Aposta> Apostas { get; set; }
+}
+
+class Pessoa {
+	public int Id { get; set; }
+	public int Nome { get; set; }
+}
+
+class Aposta {
+	private List<int> _numeros;
+	private static Aposta _instancia = null;
+	private const string SEPARADOR_RESULTADO = "-";
+	
+	private Aposta() {
+		_numeros = new List<int>();
+	}
+	
+	public static Aposta Instancia() {
+		if (_instancia == null)
+			return new Aposta();
+			
+		return _instancia;
+	}
+	
+	public Aposta Gerar(int qtdNumeros, int nroMaximo)
+	{
+		var rnd = new Random();
+		
+		while (_numeros.Count != qtdNumeros) {
+			var n = rnd.Next(nroMaximo);
+			
+			if (_numeros.Any(x => x == n || x == 0))
+				continue;
+				
+			_numeros.Add(n);
+		}
+		
+		return this;
+	}
+	
+	public override string ToString() 
+		=> string.Join(SEPARADOR_RESULTADO, _numeros.OrderBy(x => x).ToArray());
+}
